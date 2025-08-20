@@ -121,4 +121,27 @@ public class FileManager {
             System.out.println("Could not write to battle log: " + error.getMessage());
         }
     }
+
+
+    public static List<Gladiator> loadGladiators() {
+        List<Gladiator> gladiators = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(GLADIATOR_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length == 4) {
+                    String name = data[0].trim();
+                    int health = Integer.parseInt(data[1].trim());
+                    int attack = Integer.parseInt(data[2].trim());
+                    int defense = Integer.parseInt(data[3].trim());
+
+                    gladiators.add(new EnemyGladiator(name, health, attack, defense, new Random()));
+                }
+            }
+        } catch (IOException error) {
+            System.out.println("Gladiators.txt unreadable: " + error.getMessage());
+        }
+        return gladiators;
+    }
+
 }
