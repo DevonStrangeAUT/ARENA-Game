@@ -37,7 +37,7 @@ public class EnemyGladiator extends Gladiator {
             System.out.println(name + " guards.");
             // needs implementation
         } else {
-            System.out.println(name + " taunts");
+            System.out.println(name + " taunts"); 
         }
 
     }

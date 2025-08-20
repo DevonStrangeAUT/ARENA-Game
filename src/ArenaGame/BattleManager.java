@@ -19,7 +19,7 @@ public class BattleManager {
         this.enemy = enemy;
     }
 
-    public void startBattle() {
+    public boolean startBattle() {
         while (player.isAlive() && enemy.isAlive()) {
             clearScreen();
             showStats();
@@ -35,12 +35,15 @@ public class BattleManager {
 
             pause(1000);
         }
+        
+        boolean playerWon = player.isAlive();
+        System.out.println(playerWon ? "\nYou WIN the battle!" : "\nYou LOSE the battle.");
 
-        System.out.println(player.isAlive() ? "\nYou WIN the battle!" : "\nYou LOSE the battle.");
-        recordResult();
+        recordResult(playerWon);
+        return playerWon;
     }
 
-    private void recordResult() {
+    private void recordResult(boolean playerWon) {
         String result = player.isAlive()
                 ? player.getName() + " won against " + enemy.getName()
                 : player.getName() + " lost to " + enemy.getName();
