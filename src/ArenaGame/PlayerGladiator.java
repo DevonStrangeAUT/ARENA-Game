@@ -13,10 +13,18 @@ import java.util.Scanner;
 public class PlayerGladiator extends Gladiator {
 
     private Scanner scanner;
+    private Inventory inventory;
 
     public PlayerGladiator(String name, int health, int attack, int defense, Scanner scanner) {
         super(name, health, attack, defense);
         this.scanner = scanner;
+        this.inventory = new Inventory();
+        inventory.addItem(new Item("Health Potion", "Restores 20 HP", "heal", 20));
+        inventory.addItem(new Item("Attack Boost", "Increases attack by 5", "buff", 5));
+    }
+
+    public Inventory getInventory() {
+        return inventory;
     }
 
     private int getChoice() {
@@ -54,16 +62,25 @@ public class PlayerGladiator extends Gladiator {
                 ArenaGame.BattleManager.logAction(getName(), "guards.", 0);
             }
             case 3 -> {
-                System.out.println("You use an item.");
-                // requires implementation
-                ArenaGame.BattleManager.logAction(getName(), "uses an item.", 0);
+                if (inventory.isEmpty()) {
+                    System.out.println("You have no items to use!");
+                } else {
+                    inventory.display();
+                    System.out.print("Select an item to use: ");
+                    int itemChoice = getChoice() - 1;
+                    Item selectedItem = inventory.useItem(itemChoice);
+                    if (selectedItem != null) {
+                        useItem(selectedItem);
+                        ArenaGame.BattleManager.logAction(getName(), "uses an item.", 0);
+                    }
+                }
             }
             case 4 -> {
                 System.out.println("You taunt.");
                 ArenaGame.BattleManager.logAction(getName(), "taunts.", 0);
             }
-            case 5 -> GameMenu.quit();
-            
+            case 5 ->
+                GameMenu.quit();
             default ->
                 System.out.println("Invalid choice. You lose your turn.");
 
@@ -75,6 +92,21 @@ public class PlayerGladiator extends Gladiator {
             Thread.currentThread().interrupt();
         }
 
+    }
+
+    public void useItem(Item item) {
+        switch (item.getName()) {
+            case "Health Potion" -> {
+                setHealth(getHealth() + item.getValue());
+                System.out.println(getName() + " healed for " + item.getValue() + " HP!");
+            }
+            case "Attack Boost" -> {
+                setAttack(getAttack() + item.getValue());
+                System.out.println(getName() + "'s attack increased by " + item.getValue() + "!");
+            }
+            default ->
+                System.out.println("Nothing happens...");
+        }
     }
 
 }

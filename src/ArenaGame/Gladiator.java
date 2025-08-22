@@ -30,16 +30,18 @@ public abstract class Gladiator {
 
     public void takeDamage(int damage) {
         int totalDamage = damage - defense;
-        if (isBlocking()) totalDamage /= 2;
+        if (isBlocking()) {
+            totalDamage /= 2;
+        }
         totalDamage = Math.max(totalDamage, 0);
         health -= totalDamage;
         System.out.println(name + " has taken " + totalDamage + " damage. Remaining Health = " + Math.max(health, 0));
     }
-    
+
     public void setBlocking(boolean status) {
         isBlocking = status;
     }
-    
+
     public boolean isBlocking() {
         return isBlocking;
     }
@@ -58,6 +60,18 @@ public abstract class Gladiator {
 
     public int getDefense() {
         return defense;
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
+
+    public void setAttack(int attack) {
+        this.attack = attack;
+    }
+
+    public void setDefense(int defense) {
+        this.defense = defense;
     }
 
     public abstract void takeTurn(Gladiator opponent);
