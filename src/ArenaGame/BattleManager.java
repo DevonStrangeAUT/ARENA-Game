@@ -12,9 +12,9 @@ import java.util.*;
 public class BattleManager {
     
     private PlayerGladiator player;
-    private EnemyGladiator enemy;
+    private Gladiator enemy;
 
-    public BattleManager(PlayerGladiator player, EnemyGladiator enemy) {
+    public BattleManager(PlayerGladiator player, Gladiator enemy) {
         this.player = player;
         this.enemy = enemy;
     }

@@ -18,7 +18,7 @@ public class GameMenu {
 
     private Scanner scanner;
     private Map<String, Integer> scores;
-    private List<EnemyGladiator> gladiators;
+    private List<Gladiator> gladiators;
     private String playerName;
 
     public GameMenu() {
@@ -86,7 +86,7 @@ public class GameMenu {
             return;
         }
         Random rand = new Random();
-        EnemyGladiator enemy = gladiators.get(rand.nextInt(gladiators.size()));
+        Gladiator enemy = gladiators.get(rand.nextInt(gladiators.size()));
         PlayerGladiator player = new PlayerGladiator(playerName, 100, 20, 5, scanner);
 
         BattleManager battle = new BattleManager(player, enemy);
@@ -126,29 +126,28 @@ public class GameMenu {
         }
     }
 
-private void playIntro() {
-    String[] title = {
-        "    _   ___ ___ _  _   _   ",
-        "   /_\\ | _ \\ __| \\| | /_\\  ",
-        "  / _ \\|   / _|| .` |/ _ \\ ",
-        " /_/ \\_\\_|_\\___|_|\\_\\/_/ \\_\\",
-        "                            "
-    };
+    private void playIntro() {
+        String[] title = {
+            "    _   ___ ___ _  _   _   ",
+            "   /_\\ | _ \\ __| \\| | /_\\  ",
+            "  / _ \\|   / _|| .` |/ _ \\ ",
+            " /_/ \\_\\_|_\\___|_|\\_\\/_/ \\_\\",
+            "                            "
+        };
 
-    System.out.println();
+        System.out.println();
 
-    try {
-        for (String line : title) {
-            System.out.println(line);
-            Thread.sleep(250); // pause 150ms between lines
+        try {
+            for (String line : title) {
+                System.out.println(line);
+                Thread.sleep(250); // pause 150ms between lines
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
-    } catch (InterruptedException e) {
-        Thread.currentThread().interrupt();
+
+        System.out.println("\nWelcome to the ARENA, warrior!");
     }
-
-    System.out.println("\nWelcome to the ARENA, warrior!");
-}
-
 
     private void playOutro() {
         System.out.println("This is a test line :)");

@@ -23,15 +23,16 @@ public class FileManager {
      * Pulls gladiators from gladiators.txt Use format:
      * name,health,attack,defense
      */
-    public static List<EnemyGladiator> readGladiators() {
-        List<EnemyGladiator> gladiators = new ArrayList<>();
+    public static List<Gladiator> readGladiators() {
+        List<Gladiator> gladiators = new ArrayList<>();
         File file = new File(GLADIATOR_FILE);
 
         if (!file.exists()) {
-            System.out.println("gladiators.txt not found! Using default gladiators.");
+            System.out.println("Could not read gladiators.txt, reverting to defaults.");
             gladiators.add(new EnemyGladiator("Spartacus", 100, 20, 5, new Random()));
             gladiators.add(new EnemyGladiator("Maximus", 120, 25, 10, new Random()));
             gladiators.add(new EnemyGladiator("Commodus", 90, 15, 3, new Random()));
+            writeGladiators(new ArrayList<>(gladiators));
             return gladiators;
         }
 
@@ -62,7 +63,12 @@ public class FileManager {
         File file = new File(SCORE_FILE);
 
         if (!file.exists()) {
-            return scores; // return empty if file missing
+            try {
+                file.createNewFile();
+            } catch (IOException error) {
+                System.out.println("Could not create scores.txt: " + error.getMessage());
+            }
+            return scores;
         }
 
         try (Scanner scanner = new Scanner(file)) {
@@ -87,7 +93,7 @@ public class FileManager {
 
     // WRITE METHODS
     /**
-     * Saves gladiator data to gladiators.txt (overwrite file)
+     * Saves gladiator data to gladiators.txt
      */
     public static void writeGladiators(List<Gladiator> gladiators) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(GLADIATOR_FILE))) {
@@ -101,7 +107,7 @@ public class FileManager {
     }
 
     /**
-     * Updates player scores in scores.txt (overwrite file)
+     * Updates player scores in scores.txt
      */
     public static void writeScores(Map<String, Integer> scores) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(SCORE_FILE))) {
@@ -119,10 +125,46 @@ public class FileManager {
      */
     public static void writeBattleLog(String logEntry) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(BATTLE_LOG, true))) {
-            writer.write(logEntry);
+            writer.write("[" + new Date() + "]" + logEntry);
             writer.newLine();
         } catch (IOException error) {
             System.out.println("Could not write to battles.log: " + error.getMessage());
         }
     }
+    
+    //UTILITY METHODS
+    /**
+     *  Clears all player scores in scores.txt
+     */
+    public static void clearScores(){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(SCORE_FILE))) {
+            // clear by overwriting with blank
+        } catch (IOException error) {
+            System.out.println("Could not clear scores.txt: " + error.getMessage());
+        }
+    }
+    
+    /**
+     * Clears all game records in battle.log
+     */
+    public static void clearBattleLog(){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(BATTLE_LOG))){
+            // clear by overwriting with blank
+        } catch (IOException error) {
+            System.out.println("Could not clear battles.log: " + error.getMessage());
+        }
+    }
+    
+    /**
+     *  Clears all Gladiators in gladiators.txt and sets to default
+     */
+    public static void resetGladiators(){
+        List<Gladiator> defaults = new ArrayList<>();
+        defaults.add(new EnemyGladiator("Spartacus", 100, 20, 5, new Random()));
+        defaults.add(new EnemyGladiator("Maximus", 120, 25, 10, new Random()));
+        defaults.add(new EnemyGladiator("Commodus", 90, 15, 3, new Random()));
+        writeGladiators(defaults);
+        System.out.println("Gladiators reset to defaults.");
+    }
+    
 }
