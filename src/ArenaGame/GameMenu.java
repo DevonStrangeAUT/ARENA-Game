@@ -20,6 +20,7 @@ public class GameMenu {
     private Map<String, Integer> scores;
     private List<Gladiator> gladiators;
     private String playerName;
+    public static boolean running = true;
 
     public GameMenu() {
         this.scanner = new Scanner(System.in);
@@ -27,19 +28,22 @@ public class GameMenu {
         this.gladiators = FileManager.readGladiators();
     }
 
+    
+    
     /**
      * Game loop, show menu until player exits.
      */
     public void run() {
         playIntro();
 
+        
+        
         System.out.print("Who dares enter the ARENA?: ");
         playerName = scanner.nextLine().trim();
         if (!scores.containsKey(playerName)) {
             scores.put(playerName, 0);
         }
-
-        boolean running = true;
+        
         while (running) {
             displayMenu();
             int playerChoice = getChoice();
@@ -51,8 +55,25 @@ public class GameMenu {
                     viewScores();
                 case 3 ->
                     viewBattleLog();
-                case 4 ->
-                    running = false;
+                case 4 -> {
+                    FileManager.clearScores();
+                    scores.clear();
+                    System.out.println("Scores cleared.");
+                    if (!scores.containsKey(playerName)) {
+                        scores.put(playerName, 0);
+                    }
+                }
+                case 5 -> {
+                    FileManager.resetGladiators();
+                    gladiators = FileManager.readGladiators();
+                }
+                case 6 -> {
+                    FileManager.clearBattleLog();
+                    System.out.println("Battle Log cleared.");
+                }
+                case 7 ->
+                    quit();
+
                 default ->
                     System.out.println("Enter a valid choice.");
             }
@@ -68,7 +89,10 @@ public class GameMenu {
         System.out.println("1. Enter Battle");
         System.out.println("2. View Scores");
         System.out.println("3. View Battle Logs");
-        System.out.println("4. Exit");
+        System.out.println("4. Reset Scores");
+        System.out.println("5. Reset Gladiators");
+        System.out.println("6. Reset Battle Log");
+        System.out.println("7. Exit");
         System.out.print("> ");
     }
 
@@ -106,7 +130,7 @@ public class GameMenu {
     private void viewScores() {
         System.out.println("\n===== Player Scores =====");
         if (scores.isEmpty()) {
-            System.out.println("No scores available at this time...");
+            System.out.println("Could not read scores.txt");
         } else {
             scores.forEach((name, score) -> System.out.println(name + ": " + score));
         }
@@ -122,7 +146,7 @@ public class GameMenu {
                 System.out.println(logReader.nextLine());
             }
         } catch (Exception error) {
-            System.out.println("Battle.log could not be written");
+            System.out.println("Could not read battle.log");
         }
     }
 
@@ -153,4 +177,7 @@ public class GameMenu {
         System.out.println("This is a test line :)");
     }
 
+    public static void quit() {
+        running = false;
+    }
 }

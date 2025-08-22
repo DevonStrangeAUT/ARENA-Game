@@ -15,6 +15,7 @@ public abstract class Gladiator {
     protected int health;
     protected int attack;
     protected int defense;
+    protected boolean isBlocking;
 
     public Gladiator(String name, int health, int attack, int defense) {
         this.name = name;
@@ -29,11 +30,18 @@ public abstract class Gladiator {
 
     public void takeDamage(int damage) {
         int totalDamage = damage - defense;
-        if (totalDamage < 0) {
-            totalDamage = 0;
-        }
+        if (isBlocking()) totalDamage /= 2;
+        totalDamage = Math.max(totalDamage, 0);
         health -= totalDamage;
-        System.out.println(name + " has taken " + totalDamage + " damage. Remaining Health: " + Math.max(health, 0));
+        System.out.println(name + " has taken " + totalDamage + " damage. Remaining Health = " + Math.max(health, 0));
+    }
+    
+    public void setBlocking(boolean status) {
+        isBlocking = status;
+    }
+    
+    public boolean isBlocking() {
+        return isBlocking;
     }
 
     public String getName() {

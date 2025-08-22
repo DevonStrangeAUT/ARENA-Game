@@ -27,29 +27,52 @@ public class PlayerGladiator extends Gladiator {
             return -1;
         }
     }
-    
+
     @Override
     public void takeTurn(Gladiator opponent) {
+        // reset guard status at the start of a turn
+        setBlocking(false);
+
         System.out.println("\nYour turn. Select an action:");
         System.out.println("1. Attack.");
         System.out.println("2. Guard.");
         System.out.println("3. Use item.");
         System.out.println("4. Taunt.");
+        System.out.println("5. Exit");
 
         int combatChoice = getChoice();
-        if (combatChoice == 1) {
-            System.out.println("You attack.");
-            opponent.takeDamage(getAttack());
-        } else if (combatChoice == 2) {
-            System.out.println("You guard.");
-            // requires implementation
-        } else if (combatChoice == 3) {
-            System.out.println("You use an item.");
-            // requires implementation
-        } else if (combatChoice == 4) {
-            System.out.println("You taunt.");
-        } else {
-            System.out.println("Invalid choice. You lose your turn.");
+
+        switch (combatChoice) {
+            case 1 -> {
+                System.out.println("You attack.");
+                opponent.takeDamage(getAttack());
+                ArenaGame.BattleManager.logAction(getName(), "attacks.", getAttack());
+            }
+            case 2 -> {
+                System.out.println("You guard.");
+                setBlocking(true);
+                ArenaGame.BattleManager.logAction(getName(), "guards.", 0);
+            }
+            case 3 -> {
+                System.out.println("You use an item.");
+                // requires implementation
+                ArenaGame.BattleManager.logAction(getName(), "uses an item.", 0);
+            }
+            case 4 -> {
+                System.out.println("You taunt.");
+                ArenaGame.BattleManager.logAction(getName(), "taunts.", 0);
+            }
+            case 5 -> GameMenu.quit();
+            
+            default ->
+                System.out.println("Invalid choice. You lose your turn.");
+
+        }
+
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
 
     }

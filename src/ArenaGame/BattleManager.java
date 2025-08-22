@@ -5,12 +5,13 @@
 package ArenaGame;
 
 import java.util.*;
+
 /**
  *
  * @author hipst
  */
 public class BattleManager {
-    
+
     private PlayerGladiator player;
     private Gladiator enemy;
 
@@ -20,11 +21,14 @@ public class BattleManager {
     }
 
     public boolean startBattle() {
-        while (player.isAlive() && enemy.isAlive()) {
+        while (player.isAlive() && enemy.isAlive() && GameMenu.running) {
             clearScreen();
             showStats();
 
             player.takeTurn(enemy);
+            if (!GameMenu.running) {
+                return false; 
+            }
 
             pause(800);
             if (!enemy.isAlive()) {
@@ -32,13 +36,15 @@ public class BattleManager {
             }
 
             enemy.takeTurn(player);
-
-            pause(1000);
+            pause(300);
         }
-        
-        boolean playerWon = player.isAlive();
-        System.out.println(playerWon ? "\nYou WIN the battle!" : "\nYou LOSE the battle.");
 
+        if (!GameMenu.running) {
+            return false; 
+        }
+
+        boolean playerWon = player.isAlive();
+        System.out.println(playerWon ? "\nYou stand victorious." : "\nYou lose the battle");
         recordResult(playerWon);
         return playerWon;
     }
@@ -59,13 +65,22 @@ public class BattleManager {
     private void showStats() {
         System.out.println("======= ARENA STATUS =======");
         System.out.printf("%-10s HP: %-4d%n", player.getName(), player.getHealth());
-        System.out.printf("%-10s HP: %-4d%n", enemy.getName(), enemy.getHealth());
+        System.out.printf("%-10s HP: %-4d %s%n", enemy.getName(), enemy.getHealth(),
+                enemy.isBlocking() ? "(Guarding)" : "");
         System.out.println("============================");
     }
 
     private void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
+    }
+
+    public static void logAction(String actor, String action, int damage) {
+        String entry = actor + " " + action;
+        if (damage > 0) {
+            entry += " for " + damage + " damage.";
+        }
+        FileManager.writeBattleLog(entry);
     }
 
     private void pause(int ms) {

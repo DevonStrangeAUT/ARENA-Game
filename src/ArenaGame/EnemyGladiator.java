@@ -21,6 +21,9 @@ public class EnemyGladiator extends Gladiator {
 
     @Override
     public void takeTurn(Gladiator opponent) {
+        // reset guard status at the start of a turn
+        setBlocking(false);
+
         System.out.println("\nOpponent's turn...");
         try {
             Thread.sleep(600);
@@ -28,17 +31,42 @@ public class EnemyGladiator extends Gladiator {
             Thread.currentThread().interrupt();
         }
 
-        int choice = randNum.nextInt(3); // 0 = attack, 1 = defend, 2 = taunt
-
-        if (choice == 0) {
-            System.out.println(name + " attacks.");
-            opponent.takeDamage(getAttack());
-        } else if (choice == 1) {
-            System.out.println(name + " guards.");
-            // needs implementation
+        int choice;
+        if (health < getHealth() * 0.3) {
+            choice = 1; // guarding 
+        } else if (opponent.getHealth() < opponent.getHealth() * 0.3) {
+            choice = 0; //attack
         } else {
-            System.out.println(name + " taunts"); 
+            int rand = randNum.nextInt(10); // 0-9
+            if (rand < 5) {
+                choice = 0;         // attack
+            } else if (rand < 9) {
+                choice = 1;    // guard
+            } else {
+                choice = 2; // taunt
+            }
         }
 
+        switch (choice) {
+            case 0 -> {
+                System.out.println(name + " attacks.");
+                opponent.takeDamage(getAttack());
+                ArenaGame.BattleManager.logAction(getName(), "attacks.", getAttack());
+            }
+            case 1 -> {
+                setBlocking(true);
+                System.out.println(name + " prepares to guard your attack.");
+                ArenaGame.BattleManager.logAction(getName(), "guards.", 0);
+            }
+            case 2 -> {
+                System.out.println(name + " taunts you.");
+                ArenaGame.BattleManager.logAction(getName(), "taunts.", 0);
+            }
+        }
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
