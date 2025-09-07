@@ -13,13 +13,15 @@ public abstract class Gladiator {
 
     protected String name;
     protected int health;
+    protected int maxHealth;
     protected int attack;
     protected int defense;
     protected boolean isBlocking;
 
-    public Gladiator(String name, int health, int attack, int defense) {
+    public Gladiator(String name, int health, int attack, int defense, int maxHealth) {
         this.name = name;
         this.health = health;
+        this.maxHealth = maxHealth;
         this.attack = attack;
         this.defense = defense;
     }
@@ -29,12 +31,17 @@ public abstract class Gladiator {
     }
 
     public void takeDamage(int damage) {
-        int totalDamage = damage - defense;
+        // Damage reduction factor: smaller defense scales reasonably
+        double damageMultiplier = 1 - ((double) defense / (defense + 50));
+        int totalDamage = (int) Math.round(damage * damageMultiplier);
+
         if (isBlocking()) {
-            totalDamage /= 2;
+            totalDamage = (int) Math.ceil(totalDamage / 2.0);
         }
-        totalDamage = Math.max(totalDamage, 0);
+
+        totalDamage = Math.max(totalDamage, 1); // always deal at least 1 damage
         health -= totalDamage;
+
         System.out.println(name + " has taken " + totalDamage + " damage. Remaining Health = " + Math.max(health, 0));
     }
 
@@ -52,6 +59,10 @@ public abstract class Gladiator {
 
     public int getHealth() {
         return health;
+    }
+
+    public int getMaxHealth() {
+        return maxHealth;
     }
 
     public int getAttack() {

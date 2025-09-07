@@ -22,6 +22,10 @@ public class Inventory {
         return items.isEmpty();
     }
 
+    public int size() {
+        return items.size();
+    }
+
     public void display() {
         if (items.isEmpty()) {
             System.out.println("Inventory is empty.");
@@ -33,7 +37,7 @@ public class Inventory {
             System.out.println((i + 1) + ". " + item.getName() + " - " + item.getDescription());
         }
     }
-    
+
     public Item useItem(int index) {
         if (index < 0 || index >= items.size()) {
             System.out.println("Invalid item, please choose again.");

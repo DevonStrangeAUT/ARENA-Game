@@ -28,16 +28,17 @@ public class FileManager {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(",");
-                if (data.length == 4) {
+                if (data.length == 5) {
                     String name = data[0].trim();
                     int health = Integer.parseInt(data[1].trim());
-                    int attack = Integer.parseInt(data[2].trim());
-                    int defense = Integer.parseInt(data[3].trim());
-                    gladiators.add(new EnemyGladiator(name, health, attack, defense, new Random()));
+                    int attack = Integer.parseInt(data[3].trim());
+                    int defense = Integer.parseInt(data[4].trim());
+                    int maxHealth = Integer.parseInt(data[2].trim());
+                    gladiators.add(new EnemyGladiator(name, health, maxHealth, attack, defense, new Random()));
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Error reading gladiators: " + e.getMessage());
+        } catch (IOException error) {
+            System.out.println("Error reading gladiators: " + error.getMessage());
         }
         return gladiators;
     }
@@ -58,8 +59,8 @@ public class FileManager {
                     scores.put(parts[0].trim(), Integer.parseInt(parts[1].trim()));
                 }
             }
-        } catch (IOException e) {
-            System.out.println("Error reading scores.txt: " + e.getMessage());
+        } catch (IOException error) {
+            System.out.println("Error reading scores.txt: " + error.getMessage());
         }
         return scores;
     }
@@ -73,11 +74,11 @@ public class FileManager {
         Path path = Paths.get(GLADIATOR_FILE);
         try (BufferedWriter writer = Files.newBufferedWriter(path)) {
             for (Gladiator g : gladiators) {
-                writer.write(g.getName() + "," + g.getHealth() + "," + g.getAttack() + "," + g.getDefense());
+                writer.write(g.getName() + "," + g.getHealth() + "," + g.getMaxHealth() + "," + g.getAttack() + "," + g.getDefense());
                 writer.newLine();
             }
-        } catch (IOException e) {
-            System.out.println("Error writing gladiators.txt: " + e.getMessage());
+        } catch (IOException error) {
+            System.out.println("Error writing gladiators.txt: " + error.getMessage());
         }
     }
 
@@ -88,8 +89,8 @@ public class FileManager {
                 writer.write(entry.getKey() + ":" + entry.getValue());
                 writer.newLine();
             }
-        } catch (IOException e) {
-            System.out.println("Error writing scores.txt: " + e.getMessage());
+        } catch (IOException error) {
+            System.out.println("Error writing scores.txt: " + error.getMessage());
         }
     }
 
@@ -98,8 +99,8 @@ public class FileManager {
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
             writer.write("[" + new Date() + "] " + logEntry);
             writer.newLine();
-        } catch (IOException e) {
-            System.out.println("Error writing battles.log: " + e.getMessage());
+        } catch (IOException error) {
+            System.out.println("Error writing battles.log: " + error.getMessage());
         }
     }
 
@@ -108,8 +109,8 @@ public class FileManager {
         Path path = Paths.get(SCORE_FILE);
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
             // file truncated
-        } catch (IOException e) {
-            System.out.println("Could not clear scores.txt: " + e.getMessage());
+        } catch (IOException error) {
+            System.out.println("Could not clear scores.txt: " + error.getMessage());
         }
     }
 
@@ -117,19 +118,18 @@ public class FileManager {
         Path path = Paths.get(BATTLE_LOG);
         try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
             // file truncated
-        } catch (IOException e) {
-            System.out.println("Could not clear battles.log: " + e.getMessage());
+        } catch (IOException error) {
+            System.out.println("Could not clear battles.log: " + error.getMessage());
         }
     }
 
     // ================= RESET METHODS =================
     public static List<Gladiator> resetGladiators() {
         List<Gladiator> defaults = new ArrayList<>();
-        defaults.add(new EnemyGladiator("Spartacus", 100, 20, 5, new Random()));
-        defaults.add(new EnemyGladiator("Maximus", 120, 25, 10, new Random()));
-        defaults.add(new EnemyGladiator("Commodus", 90, 15, 3, new Random()));
+        defaults.add(new EnemyGladiator("Spartacus", 100, 100, 35, 5, new Random()));
+        defaults.add(new EnemyGladiator("Maximus", 120, 120, 45, 10, new Random()));
+        defaults.add(new EnemyGladiator("Commodus", 90, 90, 30, 3, new Random()));
         writeGladiators(defaults);
-        System.out.println("Gladiators reset to defaults.");
         return defaults;
     }
 }

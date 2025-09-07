@@ -1,18 +1,18 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package ArenaGame;
 
 import java.util.*;
 
 /**
- *
- * @author hipst
- */
-/**
- * GameMenu handles the menu operations for ARENA It handles game loop, menus
- * and navigation
+ * GameMenu handles displaying menus, user interactions with those menus
+ * and handles processing input for the ARENA game.
+ * 
+ * Responsibilities:
+ * - Displays main menu on launch
+ * - Start battles when option is selected
+ * - View/reset scores
+ * - View/reset battle logs
+ * - Reset gladiators to defaults
+ * - Maintain game loop
  */
 public class GameMenu {
 
@@ -22,31 +22,30 @@ public class GameMenu {
     private String playerName;
     public static boolean running = true;
 
+    /**
+     * Initializes the game menu, loads scores and reads gladiators.
+     */
     public GameMenu() {
         this.scanner = new Scanner(System.in);
         this.scores = FileManager.readScores();
         this.gladiators = FileManager.readGladiators();
     }
 
-    
-    
     /**
-     * Game loop, show menu until player exits.
+     * Game loop, show menu until player exits the game.
      */
     public void run() {
         playIntro();
 
-        
-        
-        System.out.print("Who dares enter the ARENA?: ");
-        playerName = scanner.nextLine().trim();
+        playerName = getPlayerName();
+
         if (!scores.containsKey(playerName)) {
             scores.put(playerName, 0);
         }
-        
+
         while (running) {
             displayMenu();
-            int playerChoice = getChoice();
+            int playerChoice = getChoice(1, 7);  // 1–7 are valid menu options
 
             switch (playerChoice) {
                 case 1 ->
@@ -66,6 +65,7 @@ public class GameMenu {
                 case 5 -> {
                     FileManager.resetGladiators();
                     gladiators = FileManager.readGladiators();
+                    System.out.println("Gladiators reset to defaults.");
                 }
                 case 6 -> {
                     FileManager.clearBattleLog();
@@ -83,7 +83,28 @@ public class GameMenu {
         playOutro();
         scanner.close();
     }
+    /*
+    *   Gets the player's name using a scanner, and validates that the name can be used
+    */
+    private String getPlayerName() {
+        String name;
+        while (true) {
+            System.out.print("Who dares enter the ARENA?: ");
+            name = scanner.nextLine().trim();
+            if (name.isEmpty()) {
+                System.out.println("Name cannot be empty.");
+            } else if (name.length() > 20) {
+                System.out.println("Name too long. Max 20 characters.");
+            } else if (!name.matches("[a-zA-Z0-9_]+")) {
+                System.out.println("Only letters, numbers, and underscores allowed.");
+            } else {
+                break;
+            }
+        }
+        return name;
+    }
 
+    /** Displays the main menu options. */
     private void displayMenu() {
         System.out.println("\n===== ARENA MENU =====");
         System.out.println("1. Enter Battle");
@@ -96,14 +117,27 @@ public class GameMenu {
         System.out.print("> ");
     }
 
-    private int getChoice() {
-        try {
-            return Integer.parseInt(scanner.nextLine().trim());
-        } catch (NumberFormatException error) {
-            return -1;
+    
+    /**
+     * Reads integer input from the player.
+     */
+    private int getChoice(int min, int max) {
+        int choice = -1;
+        while (true) {
+            try {
+                choice = Integer.parseInt(scanner.nextLine().trim());
+                if (choice >= min && choice <= max) {
+                    break;
+                }
+                System.out.print("Enter a valid number between " + min + " and " + max + ": ");
+            } catch (NumberFormatException error) {
+                System.out.print("Invalid input type. Please enter a number between " + min + " and " + max + ": ");
+            }
         }
+        return choice;
     }
 
+    /** Starts a battle between the player and a random enemy gladiator. */
     private void startBattle() {
         if (gladiators.isEmpty()) {
             System.out.println("No enemies await...");
@@ -111,7 +145,7 @@ public class GameMenu {
         }
         Random rand = new Random();
         Gladiator enemy = gladiators.get(rand.nextInt(gladiators.size()));
-        PlayerGladiator player = new PlayerGladiator(playerName, 100, 20, 5, scanner);
+        PlayerGladiator player = new PlayerGladiator(playerName, 100, 100, 50, 5, scanner);
 
         BattleManager battle = new BattleManager(player, enemy);
         boolean playerWon = battle.startBattle();
@@ -127,6 +161,7 @@ public class GameMenu {
         FileManager.writeBattleLog(result);
     }
 
+    /** Displays all player scores. */
     private void viewScores() {
         System.out.println("\n===== Player Scores =====");
         if (scores.isEmpty()) {
@@ -136,20 +171,22 @@ public class GameMenu {
         }
     }
 
+     /** Displays the battle log. */
     private void viewBattleLog() {
         System.out.println("\n===== Battle Log =====");
         try (Scanner logReader = new Scanner(new java.io.File("battles.log"))) {
             if (!logReader.hasNextLine()) {
-                System.out.println("No available at this time...");
+                System.out.println("Not available at this time...");
             }
             while (logReader.hasNextLine()) {
                 System.out.println(logReader.nextLine());
             }
         } catch (Exception error) {
-            System.out.println("Could not read battle.log");
+            System.out.println("Could not read battle.log as no entries are available.");
         }
     }
 
+    /** Displays the game intro. */
     private void playIntro() {
         String[] title = {
             "    _   ___ ___ _  _   _   ",
@@ -172,7 +209,7 @@ public class GameMenu {
 
         System.out.println("\nWelcome to the ARENA, warrior!");
     }
-
+    /** Displays the game outro. */
     private void playOutro() {
         System.out.println("This is a test line :)");
     }

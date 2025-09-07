@@ -15,12 +15,12 @@ public class PlayerGladiator extends Gladiator {
     private Scanner scanner;
     private Inventory inventory;
 
-    public PlayerGladiator(String name, int health, int attack, int defense, Scanner scanner) {
-        super(name, health, attack, defense);
+    public PlayerGladiator(String name, int health, int maxHealth, int attack, int defense, Scanner scanner) {
+        super(name, health, attack, defense, maxHealth);
         this.scanner = scanner;
         this.inventory = new Inventory();
         inventory.addItem(new Item("Health Potion", "Restores 20 HP", "heal", 20));
-        inventory.addItem(new Item("Attack Boost", "Increases attack by 5", "buff", 5));
+        inventory.addItem(new Item("Berserk Potion", "Increases attack by 5", "buff", 5));
     }
 
     public Inventory getInventory() {
@@ -38,52 +38,63 @@ public class PlayerGladiator extends Gladiator {
 
     @Override
     public void takeTurn(Gladiator opponent) {
-        // reset guard status at the start of a turn
         setBlocking(false);
 
-        System.out.println("\nYour turn. Select an action:");
-        System.out.println("1. Attack.");
-        System.out.println("2. Guard.");
-        System.out.println("3. Use item.");
-        System.out.println("4. Taunt.");
-        System.out.println("5. Exit");
+        boolean turnCompleted = false;
 
-        int combatChoice = getChoice();
+        while (!turnCompleted) {
+            System.out.println("\nYour turn. Select an action:");
+            System.out.println("1. Attack.");
+            System.out.println("2. Guard.");
+            System.out.println("3. Use item.");
+            System.out.println("4. Taunt.");
+            System.out.println("5. Exit");
 
-        switch (combatChoice) {
-            case 1 -> {
-                System.out.println("You attack.");
-                opponent.takeDamage(getAttack());
-                ArenaGame.BattleManager.logAction(getName(), "attacks.", getAttack());
-            }
-            case 2 -> {
-                System.out.println("You guard.");
-                setBlocking(true);
-                ArenaGame.BattleManager.logAction(getName(), "guards.", 0);
-            }
-            case 3 -> {
-                if (inventory.isEmpty()) {
-                    System.out.println("You have no items to use!");
-                } else {
-                    inventory.display();
-                    System.out.print("Select an item to use: ");
-                    int itemChoice = getChoice() - 1;
-                    Item selectedItem = inventory.useItem(itemChoice);
-                    if (selectedItem != null) {
+            int combatChoice = getChoice();
+
+            switch (combatChoice) {
+                case 1 -> {
+                    System.out.println("You attack.");
+                    opponent.takeDamage(getAttack());
+                    ArenaGame.BattleManager.logAction(getName(), "attacks.", getAttack());
+                    turnCompleted = true;
+                }
+                case 2 -> {
+                    System.out.println("You guard.");
+                    setBlocking(true);
+                    ArenaGame.BattleManager.logAction(getName(), "guards.", 0);
+                    turnCompleted = true;
+                }
+                case 3 -> {
+                    if (inventory.isEmpty()) {
+                        System.out.println("You have no items to use!");
+                    } else {
+                        inventory.display();
+
+                        int itemChoice;
+                        do {
+                            System.out.print("Select an item (1-" + inventory.size() + "): ");
+                            itemChoice = getChoice() - 1;
+                        } while (itemChoice < 0 || itemChoice >= inventory.size());
+
+                        Item selectedItem = inventory.useItem(itemChoice);
                         useItem(selectedItem);
                         ArenaGame.BattleManager.logAction(getName(), "uses an item.", 0);
+                        turnCompleted = true;
                     }
                 }
+                case 4 -> {
+                    System.out.println("You taunt.");
+                    ArenaGame.BattleManager.logAction(getName(), "taunts.", 0);
+                    turnCompleted = true;
+                }
+                case 5 -> {
+                    GameMenu.quit();
+                    turnCompleted = true;
+                }
+                default ->
+                    System.out.println("Invalid choice. Please enter a number between 1-5.");
             }
-            case 4 -> {
-                System.out.println("You taunt.");
-                ArenaGame.BattleManager.logAction(getName(), "taunts.", 0);
-            }
-            case 5 ->
-                GameMenu.quit();
-            default ->
-                System.out.println("Invalid choice. You lose your turn.");
-
         }
 
         try {
@@ -97,15 +108,16 @@ public class PlayerGladiator extends Gladiator {
     public void useItem(Item item) {
         switch (item.getName()) {
             case "Health Potion" -> {
-                setHealth(getHealth() + item.getValue());
-                System.out.println(getName() + " healed for " + item.getValue() + " HP!");
+                int healedAmount = Math.min(item.getValue(), maxHealth - getHealth());
+                setHealth(getHealth() + healedAmount);
+                System.out.println(getName() + " was healed for " + healedAmount + " HP.");
             }
-            case "Attack Boost" -> {
+            case "Berserk Potion" -> {
                 setAttack(getAttack() + item.getValue());
-                System.out.println(getName() + "'s attack increased by " + item.getValue() + "!");
+                System.out.println(getName() + "'s attack was increased by " + item.getValue() + ".");
             }
             default ->
-                System.out.println("Nothing happens...");
+                System.out.println("You fail to use an item.");
         }
     }
 

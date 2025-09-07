@@ -1,14 +1,14 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package ArenaGame;
 
 import java.util.*;
 
 /**
- *
- * @author hipst
+ * BattleManager handles the combat between two gladiators.
+ * 
+ * Responsibilities:
+ * - Execute turn-based combat
+ * - Determine battle outcome
+ * - Log actions to battle log
  */
 public class BattleManager {
 
@@ -64,7 +64,7 @@ public class BattleManager {
 
     private void showStats() {
         System.out.println("======= ARENA STATUS =======");
-        System.out.printf("%-10s HP: %-4d%n", player.getName(), player.getHealth());
+        System.out.printf("%-10s HP: %-4d/%-4d%n", player.getName(), player.getHealth(), player.getMaxHealth());
         System.out.printf("%-10s HP: %-4d %s%n", enemy.getName(), enemy.getHealth(),
                 enemy.isBlocking() ? "(Guarding)" : "");
         System.out.println("============================");
